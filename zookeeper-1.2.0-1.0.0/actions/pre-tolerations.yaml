@@ -1,0 +1,33 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareActionBaseline
+metadata:
+  name: pre-zookeeper-tolerations
+spec:
+  baselineType: "PreAction"
+  actionType: "tolerations"
+  necessary:
+    tolerations: "array"
+  steps:
+    - name: tolerations
+      type: "KubectlEdit" # KubectlGet、KubectlEdit、KubectlExec、Exec、HTTP
+      cue: |
+        output: {
+          spec: parameters.spec
+        }
+        parameters: {
+          spec: {
+            parameters: {
+              pod: {
+                {{- with .Necessary.tolerations }}
+                tolerations: {{ toCue . }}
+                {{- end }}
+              }
+            }
+          }
+          resource: {
+            apiversion: "middleware.cn/v1"
+            kind: "Middleware"
+            name: "{{ .Globe.Name }}"
+            namespace: "{{ .Globe.Namespace }}"
+          }
+        }

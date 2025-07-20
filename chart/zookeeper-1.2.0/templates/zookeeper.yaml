@@ -1,0 +1,169 @@
+apiVersion: "zookeeper.pravega.io/v1beta1"
+kind: "ZookeeperCluster"
+metadata:
+  name: {{ template "zookeeper.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "zookeeper.commonLabels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  {{- if contains "3.6" .Values.version }}
+  version: 3.6.2
+  {{- else }}
+  version: 3.7.1
+  {{- end }}
+  image:
+    repository: {{ .Values.image.repository }}/zookeeper
+    {{- if contains "3.6" .Values.version }}
+    tag: {{ .Values.image.tag_36 }}
+    {{- else }}
+    tag: {{ .Values.image.tag_37 }}
+    {{- end }}
+    pullPolicy: {{ .Values.image.pullPolicy }}
+  {{- if .Values.domainName }}
+  domainName: {{ .Values.domainName }}
+  {{- end }}
+  kubernetesClusterDomain: {{ default "cluster.local" .Values.kubernetesClusterDomain }}
+  {{- if .Values.probes }}
+  probes:
+    {{- if .Values.probes.readiness }}
+    readinessProbe:
+      initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds | default 10 }}
+      periodSeconds: {{ .Values.probes.readiness.periodSeconds | default 10 }}
+      failureThreshold: {{ .Values.probes.readiness.failureThreshold | default 3 }}
+      successThreshold: {{ .Values.probes.readiness.successThreshold | default 1 }}
+      timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds | default 10 }}
+    {{- end }}
+    {{- if .Values.probes.liveness }}
+    livenessProbe:
+      initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds | default 400 }}
+      periodSeconds: {{ .Values.probes.liveness.periodSeconds | default 10 }}
+      failureThreshold: {{ .Values.probes.liveness.failureThreshold | default 3 }}
+      timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds | default 10 }}
+    {{- end }}
+   {{- end }}
+  {{- if .Values.containers }}
+  containers:
+{{ toYaml .Values.containers | indent 4 }}
+  {{- end }}
+  {{- if .Values.volumes }}
+  volumes:
+{{ toYaml .Values.volumes | indent 4 }}
+  {{- end }}
+  labels:
+{{ toYaml .Values.labels | indent 4 }}
+  ports:
+{{ toYaml .Values.ports | indent 4 }}
+  pod:
+    {{- if .Values.pod.labels }}
+    labels:
+{{ toYaml .Values.pod.labels | indent 6 }}
+    {{- end }}
+{{- include "middlware.topologyDistribution" . | indent 4 }}
+    {{- if .Values.pod.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.pod.nodeSelector | indent 6 }}
+    {{- end }}
+    {{- if .Values.pod.resources }}
+    resources:
+{{ toYaml .Values.pod.resources | indent 6 }}
+    {{- end }}
+    {{- $loggingEnabled := or ((((.Values.logging).collection).stdout).enabled) ((((.Values.logging).collection).filelog).enabled) }}
+    {{- if or .Values.pod.env $loggingEnabled }}
+    env:
+    {{- if .Values.pod.env }}
+{{ toYaml .Values.pod.env | indent 6 }}
+    {{- end }}
+    {{- if $loggingEnabled }}
+    {{- if ((((.Values.logging).collection).stdout).enabled) }}
+      - name: aliyun_logs_middlewarestdout
+        value: stdout
+      - name: aliyun_logs_middlewarestdout_tags
+        value: middleware_name={{ include "zookeeper.fullname" . }}
+    {{- end }}
+    {{- if ((((.Values.logging).collection).filelog).enabled) }}
+      - name: aliyun_logs_middlewarelogstash
+        value: /data/filelogs/*.log
+      - name: aliyun_logs_middlewarelogstash_tags
+        value: middleware_name={{ include "zookeeper.fullname" . }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.pod.annotations }}
+    annotations:
+{{ toYaml .Values.pod.annotations | indent 6 }}
+    {{- end }}
+    {{- if .Values.pod.securityContext }}
+    securityContext:
+{{ toYaml .Values.pod.securityContext | indent 6 }}
+    {{- end }}
+    {{- if .Values.pod.terminationGracePeriodSeconds }}
+    terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
+    {{- end }}
+    serviceAccountName: {{ default "zookeeper" .Values.pod.serviceAccountName }}
+  {{- if .Values.args }}
+  config:
+    {{- if .Values.additionArgs }}
+    additionalConfig:
+{{ toYaml .Values.additionArgs | indent 6 }}
+    {{- end }}
+    {{- if .Values.args.initLimit }}
+    initLimit: {{ .Values.args.initLimit }}
+    {{- end }}
+    {{- if .Values.args.tickTime }}
+    tickTime: {{ .Values.args.tickTime }}
+    {{- end }}
+    {{- if .Values.args.syncLimit }}
+    syncLimit: {{ .Values.args.syncLimit }}
+    {{- end }}
+    {{- if .Values.args.skipACL }}
+    skipACL: {{ quote .Values.args.skipACL }}
+    {{- end }}
+    {{- if .Values.args.quorumListenOnAllIPs }}
+    quorumListenOnAllIPs: {{ .Values.args.quorumListenOnAllIPs }}
+    {{- end }}
+    {{- if .Values.args.autoPurgeSnapRetainCount }}
+    autoPurgeSnapRetainCount: {{ .Values.args.autoPurgeSnapRetainCount }}
+    {{- end }}
+    {{- if .Values.args.autoPurgePurgeInterval }}
+    autoPurgePurgeInterval: {{ .Values.args.autoPurgePurgeInterval }}
+    {{- end }}
+  {{- end }}
+  storageType: {{ default "persistence" .Values.storageType }}
+  {{- if eq (default .Values.storageType "persistence") "ephemeral" }}
+  ephemeral:
+    {{- if .Values.ephemeral.emptydirvolumesource }}
+    emptydirvolumesource:
+      medium: {{ .Values.ephemeral.emptydirvolumesource.medium }}
+      {{- if .Values.ephemeral.emptydirvolumesource.sizeLimit }}
+      sizeLimit: {{ .Values.ephemeral.emptydirvolumesource.sizeLimit }}
+      {{- end }}
+      {{- end }}
+  {{- else }}
+  persistence:
+    reclaimPolicy: {{ .Values.persistence.reclaimPolicy }}
+  {{- if or .Values.storageClassName .Values.storageSize }}
+    spec:
+      {{- if .Values.storageClassName }}
+      storageClassName: {{ .Values.storageClassName }}
+      {{- end }}
+      {{- if .Values.storageSize }}
+      resources:
+        requests:
+          storage: {{ .Values.storageSize }}
+      {{- end }}
+  {{- else }}
+
+    {{- if or .Values.persistence.storageClassName .Values.persistence.volumeSize }}
+    spec:
+      {{- if .Values.persistence.storageClassName }}
+      storageClassName: {{ .Values.persistence.storageClassName }}
+      {{- end }}
+      {{- if .Values.persistence.volumeSize }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.volumeSize }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- end }}

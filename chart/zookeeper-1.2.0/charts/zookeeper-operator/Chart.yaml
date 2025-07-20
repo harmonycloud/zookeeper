@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 1.2.0
+description: CloudDB Zookeeper数据库
+home: https://github.com/pravega/zookeeper-operator
+icon: https://zookeeper.apache.org/images/zookeeper_small.gif
+keywords:
+- zookeeper
+- storage
+name: zookeeper-operator
+version: 1.2.0

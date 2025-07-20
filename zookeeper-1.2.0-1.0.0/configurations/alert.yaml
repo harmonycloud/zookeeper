@@ -1,0 +1,94 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareConfiguration
+metadata:
+  name: zookeeper-alert
+spec:
+  template: |
+    apiVersion: monitoring.coreos.com/v1
+    kind: PrometheusRule
+    metadata:
+      name: {{ .Globe.Name }}
+      labels:
+        prometheus: k8s
+        role: alert-rules
+    spec:
+      groups:
+      - name: zookeeperStatsAlert
+        rules:
+        - alert: ZookeeperLargeStackedRequests
+          expr: avg(zk_outstanding_requests{service='{{ .Globe.Name }}'}) by (instance) > 10
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            product: harmonycloud
+            service: metrics
+            summary: "Instance {{`{{ $labels.instance }}`}} "
+            description: "积请求数过大"
+        - alert: ZookeeperTooManyPendkSync
+          expr: avg(zk_pending_syncs{service='{{ .Globe.Name }}'}) by (instance) > 10
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            product: harmonycloud
+            service: metrics
+            summary: "Instance {{`{{ $labels.instance }}`}}"
+            description: "塞中的 sync 过多"
+        - alert: ZookeeperLargeAvgLatency
+          expr: avg(zk_avg_latency{service='{{ .Globe.Name }}'}) by (instance) > 10
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            product: harmonycloud
+            service: metrics
+            summary: "Instance {{`{{ $labels.instance }}`}} "
+            description: '平均响应延迟过高'
+        - alert: ZookeeperTooManyOpenFile
+          expr: zk_open_file_descriptor_count{service='{{ .Globe.Name }}'} > zk_max_file_descriptor_count{service="{{ .Globe.Name }}"} * 0.85
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            product: harmonycloud
+            service: metrics
+            summary: "Instance {{`{{ $labels.instance }}`}} "
+            description: '打开文件描述符数大于系统设定的大小'
+        - alert: ZookeeperNodeDown
+          expr: up{service='{{ .Globe.Name }}'} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            product: harmonycloud
+            service: metrics
+            summary: "Instance {{`{{ $labels.instance}}`}} "
+            description: 'zookeeper服务器宕机'
+        - alert: ZookeeperVolumeUsage
+          expr:  (0* kube_persistentvolumeclaim_info{namespace='{{ .Globe.Namespace }}', persistentvolumeclaim=~"data-{{ .Globe.Name }}-[0-9]"}) + on(volumename) group_left max(label_replace ((used_size_kb / total_size_kb),"volumename", "$1", "pv", "(.+)")) by (volumename) > 0.7
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            alertLevel: critical
+            product: harmonycloud
+            summary: "{{`{{ $labels.persistentvolumeclaim }}`}} Zookeeper volume pressure"
+            message: "{{`{{ $labels.persistentvolumeclaim }}`}} Zookeeper volume pressure"
+            description: "{{`{{ $labels.persistentvolumeclaim }}`}} Zookeeper data capacity is insufficient by 30%.\n  current_value={{ `{{ $value }}` }}"
+        - alert: ZookeeperCpuUsageHigh
+          annotations:
+            message: cpu usage high for {{ .Globe.Name }}
+            summary: cpu usage high for {{ .Globe.Name }}
+          expr: sum(rate (container_cpu_usage_seconds_total{namespace='{{ .Globe.Namespace }}',pod=~'{{ .Globe.Name }}-[0-9]',endpoint!="",container!=""}[5m]) ) by (pod) / sum(kube_pod_container_resource_requests{namespace='{{ .Globe.Namespace }}',pod=~'{{ .Globe.Name }}-[0-9]',resource="cpu"}) by (pod)  > 0.8
+          for: 5m
+          labels:
+            severity: critical
+        - alert: ZookeeperMemoryUsageHigh
+          annotations:
+            message: memory usage high for {{ .Globe.Name }}
+            summary: memory usage high for {{ .Globe.Name }}
+          expr: sum(container_memory_working_set_bytes{namespace='{{ .Globe.Namespace }}',pod=~'{{ .Globe.Name }}-[0-9]',endpoint!="",container!=""}) by (pod) / sum(kube_pod_container_resource_requests{namespace='{{ .Globe.Namespace }}',pod=~'{{ .Globe.Name }}-[0-9]',resource="memory"}) by (pod) > 0.8
+          for: 5m
+          labels:
+            severity: critical

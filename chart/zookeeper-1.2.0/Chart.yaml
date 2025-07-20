@@ -1,0 +1,21 @@
+annotations:
+  deprecatedVersion: 3.6.2
+  owner: harmonycloud
+  type: mse
+  version: 3.7.1
+apiVersion: v2
+appVersion: 3.7.1
+dependencies:
+- alias: zookeeper-operator
+  condition: zookeeper-operator.enabled
+  name: zookeeper-operator
+  repository: file://./charts/zookeeper-operator
+  version: 1.2.0
+description: CloudDB Zookeeper数据库
+home: https://github.com/apache/zookeeper
+icon: https://zookeeper.apache.org/images/zookeeper_small.gif
+keywords:
+- zookeeper
+- storage
+name: zookeeper
+version: 1.2.0

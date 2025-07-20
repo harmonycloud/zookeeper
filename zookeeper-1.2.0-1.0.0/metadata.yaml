@@ -1,0 +1,11 @@
+name: ZooKeeper # 中间件类型
+version: 1.2.0-1.0.0 # 包版本
+app:
+  version: # 中间件支持版本
+    - 3.7.1
+  # deprecatedVersion: # 过期版本
+  #   - v1
+owner: harmonycloud # 供应商
+type: mse # 类型
+chartType: ZooKeeper
+description: CloudDB ZooKeeper 微服务引擎# 描述

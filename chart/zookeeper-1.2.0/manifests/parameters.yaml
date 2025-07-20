@@ -1,0 +1,46 @@
+parameters:
+  - syncLimit:
+    - name: default
+      value: 2
+    - name: isReboot
+      value: y
+    - name: range
+      value: [1-4294967295]
+    - name: describe
+      value: "The number of ticks that can pass between "
+  - skipACL:
+    - name: default
+      value: 'yes'
+    - name: isReboot
+      value: y
+    - name: range
+      value: [ yes|no ]
+    - name: describe
+      value: "Whether to skip acl rule verification"
+  - initLimit:
+    - name: default
+      value: 10
+    - name: isReboot
+      value: y
+    - name: range
+      value: [1-4294967295]
+    - name: describe
+      value: "The number of ticks that the initial "
+  - tickTime:
+    - name: default
+      value: 2000
+    - name: isReboot
+      value: y
+    - name: range
+      value: [1-4294967295]
+    - name: describe
+      value: "The number of milliseconds of each tick"
+  - quorumListenOnAllIPs:
+    - name: default
+      value: false
+    - name: isReboot
+      value: y
+    - name: range
+      value: [true|false]
+    - name: describe
+      value: "When set to true the ZooKeeper server will listen for connections from its peers on all available IP addresses, and not only the address configured in the server list of the configuration file."

@@ -1,0 +1,83 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareBaseline
+metadata:
+  name: zookeeper-standalone
+  annotations:
+    baselineName: "标准版"
+    description: "标准版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+spec:
+  operatorBaseline:
+    name: zookeeper-operator-standard
+    gvkName: v1beta1
+  necessary:
+    repository: ""
+    version: "3.7.1"
+    resource:
+      zookeeper:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+        volume:
+          size: ""
+          storageClass: ""
+  preActions:
+    - name: pre-zookeeper-logging
+      parameters:
+        fileLogging: true
+        stdoutLogging: true
+      exposed: true
+    - name: pre-zookeeper-active-active
+      parameters:
+      exposed: false
+    - name: pre-zookeeper-affinity
+      parameters:
+        nodeAffinity: { }
+      exposed: true
+    - name: pre-zookeeper-tolerations
+      parameters:
+        tolerations: [ ]
+      exposed: true
+  parameters:
+    replicas: 1
+    version: "{{ .Necessary.version }}"
+    image:
+      repository: "{{ .Necessary.repository }}/zookeeper"
+      tag: "3.7.1-2"
+      pullPolicy: IfNotPresent
+    kubernetesClusterDomain: "cluster.local"
+    pod:
+      labels:
+        middleware: zookeeper
+      resources:
+        requests:
+          cpu: '"{{ .Necessary.resource.zookeeper.requests.cpu }}"'
+          memory: '"{{ .Necessary.resource.zookeeper.requests.memory }}"'
+        limits:
+          cpu: '"{{ .Necessary.resource.zookeeper.limits.cpu }}"'
+          memory: '"{{ .Necessary.resource.zookeeper.limits.memory }}"'
+      env:
+        - name: TZ
+          value: Asia/Shanghai
+      serviceAccountName: default
+    config:
+      skipACL: "yes"
+      autoPurgeSnapRetainCount: 20
+      autoPurgePurgeInterval: 48
+    storageType: persistence
+    persistence:
+      reclaimPolicy: Retain
+      spec:
+        storageClassName: "{{ .Necessary.resource.zookeeper.volume.storageClass }}"
+        resources:
+          requests:
+            storage: "{{ .Necessary.resource.zookeeper.volume.size }}"
+  configurations:
+    - name: zookeeper-connection-credential
+      values: {}
+    - name: zookeeper-servicemonitor
+      values: {}
+    - name: zookeeper-alert
+      values: {}

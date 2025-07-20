@@ -1,0 +1,16 @@
+podAntiAffinity: "hard"
+podAntiAffinityTopologKey: "topology.kubernetes.io/zone"
+
+pod:
+  resources:
+    requests:
+      cpu: 1
+      memory: "1024M"
+    limits:
+      cpu: 2
+      memory: "4096M"
+  tolerations:
+  - effect: NoSchedule
+    key: harm.cn/type
+    operator: Equal
+    value: active-active

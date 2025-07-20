@@ -1,0 +1,30 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareConfiguration
+metadata:
+  name: zookeeper-servicemonitor
+spec:
+  template: |
+    apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      generation: 1
+      labels:
+        app: {{ .Globe.Name }}
+      name: {{ .Globe.Name }}
+    spec:
+      endpoints:
+        - interval: 30s
+          port: tcp-metrics
+          relabelings:
+          - replacement: zookeeper
+            targetLabel: middleware
+          - sourceLabels: [service]
+            replacement: {{ .Globe.Name }}
+            targetLabel: service
+          metricRelabelings:
+          - sourceLabels: [__name__]
+            replacement: zk_${1}
+            targetLabel: __name__
+      selector:
+        matchLabels:
+          app: {{ .Globe.Name }}

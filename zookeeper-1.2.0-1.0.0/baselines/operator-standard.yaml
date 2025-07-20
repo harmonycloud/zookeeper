@@ -1,0 +1,118 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareOperatorBaseline
+metadata:
+  name: zookeeper-operator-standard
+  annotations:
+    baselineName: "标准版"
+    description: "标准版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+spec:
+  gvks:
+    - name: v1beta1
+      group: "zookeeper.pravega.io"
+      version: "v1beta1"
+      kind: "ZookeeperCluster"
+  globe:
+    repository: "10.10.101.172:443"
+    project: "middleware"
+    resource:
+      limits:
+        cpu: "200m"
+        memory: "512Mi"
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+  preActions:
+    - name: pre-zookeeper-operator-affinity
+      parameters:
+        podAntiAffinityTopologKey: "kubernetes.io/hostname"
+        podAntiAffinity: "soft"
+        nodeAffinity: {}
+      exposed: true
+    - name: pre-zookeeper-operator-tolerations
+      parameters:
+        tolerations: []
+      exposed: true
+  permissionScope: "Cluster"
+  permissions:
+    - serviceAccountName: "{{ .Globe.Name }}-zookeeper-operator"
+      rules:
+        - apiGroups:
+            - zookeeper.pravega.io
+          resources:
+            - "*"
+          verbs:
+            - "*"
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+            - pods/exec
+            - services
+            - endpoints
+            - persistentvolumeclaims
+            - events
+            - configmaps
+            - secrets
+            - serviceaccounts
+          verbs:
+            - "*"
+        - apiGroups:
+            - apps
+          resources:
+            - deployments
+            - daemonsets
+            - replicasets
+            - statefulsets
+          verbs:
+            - "*"
+        - apiGroups:
+            - policy
+          resources:
+            - poddisruptionbudgets
+          verbs:
+            - "*"
+  deployment:
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          name: "{{ .Globe.Name }}"
+      template:
+        metadata:
+          labels:
+            name: "{{ .Globe.Name }}"
+            component: zookeeper-operator
+        spec:
+          serviceAccountName: "{{ .Globe.Name }}-zookeeper-operator"
+          containers:
+            - name: "{{ .Globe.Name }}"
+              image: '{{ if ne .Globe.repository "" }}{{ .Globe.repository }}/{{ end }}{{ .Globe.project }}/zookeeper-operator:v1.2.0'
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 6000
+                  name: metrics
+              command:
+                - zookeeper-operator
+              env:
+                - name: WATCH_NAMESPACE
+                  value: ""
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: "{{ .Globe.Name }}"
+              resources:
+                limits:
+                  cpu: '"{{ .Globe.resource.limits.cpu }}"'
+                  memory: '"{{ .Globe.resource.limits.memory }}"'
+                requests:
+                  cpu: '"{{ .Globe.resource.requests.cpu }}"'
+                  memory: '"{{ .Globe.resource.requests.memory }}"'
+          imagePullSecrets:
+            - name: registrysecret
+  configurations:
+    - name: "crd-zookeepercluster"
+      values: {}
+    - name: "operator-dashboard-configmap"
+      values: {}
