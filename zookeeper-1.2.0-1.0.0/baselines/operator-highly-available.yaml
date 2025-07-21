@@ -114,5 +114,5 @@ spec:
   configurations:
     - name: "crd-zookeepercluster"
       values: {}
-    - name: "operator-dashboard-configmap"
+    - name: "zookeeper-operator-dashboard-configmap"
       values: {}

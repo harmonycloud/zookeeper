@@ -1,7 +1,7 @@
 apiVersion: middleware.cn/v1
 kind: MiddlewareConfiguration
 metadata:
-  name: crd-zookeepercluster
+  name: zookeeper-operator-dashboard-configmap
 spec:
   template: |
     kind: ConfigMap
