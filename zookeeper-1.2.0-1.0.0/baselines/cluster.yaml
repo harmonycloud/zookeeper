@@ -35,6 +35,8 @@ spec:
       exposed: false
     - name: pre-zookeeper-affinity
       parameters:
+        podAntiAffinityTopologKey: "kubernetes.io/hostname"
+        podAntiAffinity: "soft"
         nodeAffinity: {}
       exposed: true
     - name: pre-zookeeper-tolerations
