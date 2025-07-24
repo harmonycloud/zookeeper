@@ -1,7 +1,7 @@
 apiVersion: middleware.cn/v1
 kind: MiddlewareConfiguration
 metadata:
-  name: zookeeper-operator-dashboard-configmap
+  name: zookeeper-operator-dashboard
 spec:
   template: |
     kind: ConfigMap

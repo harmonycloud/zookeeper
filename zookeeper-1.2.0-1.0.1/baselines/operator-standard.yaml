@@ -1,10 +1,10 @@
 apiVersion: middleware.cn/v1
 kind: MiddlewareOperatorBaseline
 metadata:
-  name: zookeeper-operator-highly-available
+  name: zookeeper-operator-standard
   annotations:
-    baselineName: "高可用版"
-    description: "高可用版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+    baselineName: "标准版"
+    description: "标准版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
 spec:
   gvks:
     - name: v1beta1
@@ -73,7 +73,7 @@ spec:
             - "*"
   deployment:
     spec:
-      replicas: 3
+      replicas: 1
       selector:
         matchLabels:
           name: "{{ .Globe.Name }}"
@@ -114,5 +114,5 @@ spec:
   configurations:
     - name: "crd-zookeepercluster"
       values: {}
-    - name: "zookeeper-operator-dashboard-configmap"
+    - name: "zookeeper-operator-dashboard"
       values: {}
