@@ -33,7 +33,7 @@ spec:
                 {{- if .Necessary.fileLogging }}
                   {
                     name: "aliyun_logs_middlewarelogstash"
-                    value: "/opt/filelogs/*.log"
+                    value: "/data/filelogs/*.log"
                   },
                   {
                     name: "aliyun_logs_middlewarelogstash_tags"
