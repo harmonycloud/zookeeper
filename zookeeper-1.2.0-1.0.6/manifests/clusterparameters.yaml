@@ -1,7 +1,7 @@
-middlewareDefinition: zookeeper-standalone
+middlewareDefinition: zookeeper-cluster
 values:
   - name: zookeeper
-    path: spec.parameters.config
+    path: spec|parameters|config
     parameters:
       - syncLimit:
           - name: default
