@@ -1,5 +1,5 @@
 name: ZooKeeper # 中间件类型
-version: 1.2.0-1.0.4 # 包版本
+version: 1.2.0-1.0.5 # 包版本
 app:
   version: # 中间件支持版本
     - 3.7.1
@@ -8,4 +8,4 @@ app:
 owner: harmonycloud # 供应商
 type: mse # 类型
 chartType: ZooKeeper
-description: CloudDB ZooKeeper 微服务引擎# 描述
+description: CloudDB ZooKeeper 微服务引擎 # 描述
