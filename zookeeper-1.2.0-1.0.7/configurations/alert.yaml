@@ -1,7 +1,7 @@
 apiVersion: middleware.cn/v1
 kind: MiddlewareConfiguration
 metadata:
-  name: zookeeper-alert
+  name: zookeeper-alertrule
 spec:
   template: |
     apiVersion: monitoring.coreos.com/v1

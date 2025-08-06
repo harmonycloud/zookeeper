@@ -1,10 +1,10 @@
 apiVersion: middleware.cn/v1
 kind: MiddlewareBaseline
 metadata:
-  name: zookeeper-cluster
+  name: zookeeper-standalone
   annotations:
-    baselineName: "集群版"
-    description: "集群版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+    baselineName: "标准版"
+    description: "标准版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
 spec:
   operatorBaseline:
     name: zookeeper-operator-standard
@@ -14,17 +14,20 @@ spec:
     version: "3.7.1"
     resource:
       zookeeper:
-        replicas: "3"
-        volume:
-          size: ""
-          storageClass: ""
         requests:
           cpu: "1"
           memory: "2Gi"
         limits:
           cpu: "2"
           memory: "4Gi"
+        volume:
+          size: ""
+          storageClass: ""
   preActions:
+    - name: pre-zookeeper-alertrule-labels
+      parameters:
+        labels: {}
+      exposed: false
     - name: pre-zookeeper-logging
       parameters:
         fileLogging: true
@@ -37,14 +40,14 @@ spec:
       parameters:
         podAntiAffinityTopologKey: "kubernetes.io/hostname"
         podAntiAffinity: "soft"
-        nodeAffinity: {}
+        nodeAffinity: { }
       exposed: true
     - name: pre-zookeeper-tolerations
       parameters:
-        tolerations: []
+        tolerations: [ ]
       exposed: true
   parameters:
-    replicas: "{{ .Necessary.resource.zookeeper.replicas }}"
+    replicas: 1
     version: "{{ .Necessary.version }}"
     image:
       repository: "{{ .Necessary.repository }}/zookeeper"
@@ -82,5 +85,5 @@ spec:
       values: {}
     - name: zookeeper-servicemonitor
       values: {}
-    - name: zookeeper-alert
+    - name: zookeeper-alertrule
       values: {}
