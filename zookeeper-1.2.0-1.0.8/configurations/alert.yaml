@@ -20,6 +20,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             product: harmonycloud
             service: metrics
@@ -30,6 +32,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             product: harmonycloud
             service: metrics
@@ -40,6 +44,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             product: harmonycloud
             service: metrics
@@ -50,6 +56,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             product: harmonycloud
             service: metrics
@@ -60,6 +68,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             product: harmonycloud
             service: metrics
@@ -70,6 +80,8 @@ spec:
           for: 1m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
           annotations:
             alertLevel: critical
             product: harmonycloud
@@ -84,6 +96,8 @@ spec:
           for: 5m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
         - alert: ZookeeperMemoryUsageHigh
           annotations:
             message: memory usage high for {{ .Globe.Name }}
@@ -92,3 +106,5 @@ spec:
           for: 5m
           labels:
             severity: critical
+            project: zeus
+            subject: middleware
