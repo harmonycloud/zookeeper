@@ -1,152 +1,312 @@
-# Zookeeper Helm Chart
+# ZooKeeper
 
-## 安装 zookeeper 集群
+## 描述
 
-```
-helm upgrade --install zk . --namespace <YOUR-NAMESPACE>
-```
+ZooKeeper 是一个开源的分布式协调服务，为分布式应用提供一致性服务。本基线基于 ZooKeeper 构建，提供了企业级的分布式协调解决方案，包括配置管理、命名服务、分布式锁、集群管理等核心功能。ZooKeeper 以其高可用性、强一致性和简单易用的 API 而闻名，广泛应用于分布式系统中的服务发现、配置管理、分布式锁、领导者选举等场景。
 
-## 检查 zookeeper 状态
+## 功能
 
-```
-kubectl get zk --namespace <YOUR-NAMESPACE>
-NAME           REPLICAS   READY REPLICAS   VERSION    DESIRED VERSION   INTERNAL ENDPOINT   EXTERNAL ENDPOINT   AGE
-zk-zookeeper   3          3                hc-0.2.8   hc-0.2.8          10.96.203.37:2181   N/A                 2m49s
-```
+### 核心功能
+- **配置管理**: 提供集中化的配置管理服务
+- **命名服务**: 为分布式系统中的服务提供命名和发现
+- **分布式锁**: 提供分布式环境下的锁机制
+- **集群管理**: 支持集群节点的管理和监控
+- **数据同步**: 提供分布式环境下的数据同步机制
+- **领导者选举**: 支持分布式系统中的领导者选举
 
-```
-kubectl get zk zk-zookeeper -o  yaml --namespace <YOUR-NAMESPACE>
-...
-status:
-  conditions:
-  - lastTransitionTime: "2021-03-08T05:50:55Z"
-    lastUpdateTime: "2021-03-08T05:50:55Z"
-    status: "True"
-    type: PodsReady
-  - status: "False"
-    type: Upgrading
-  - status: "False"
-    type: Error
-  currentVersion: hc-0.2.8
-  externalClientEndpoint: N/A
-  internalClientEndpoint: 10.96.203.37:2181
-  members:
-    ready:
-    - zk-zookeeper-0
-    - zk-zookeeper-1
-    - zk-zookeeper-2
-  metaRootCreated: true
-  readyReplicas: 3
-  replicas: 3
-```
+### 企业级特性
+- **高可用性**: 支持多节点集群部署，具备故障自动转移能力
+- **强一致性**: 基于 ZAB 协议保证数据一致性
+- **监控告警**: 集成 Prometheus 监控和告警
+- **日志管理**: 支持结构化日志输出和日志轮转
+- **持久化存储**: 支持数据持久化和快照管理
+- **自动清理**: 支持自动清理过期快照和日志
 
-## 卸载 zookeeper 集群
+### 运维功能
+- **资源管理**: 支持 CPU 和内存资源限制
+- **节点亲和性**: 支持 Pod 反亲和性和节点亲和性配置
+- **容忍度配置**: 支持污点容忍度设置
+- **健康检查**: 内置健康检查和就绪探针
+- **指标导出**: 提供 Prometheus 格式的指标
+- **优雅停机**: 支持优雅停机机制
 
-```
-helm delete zk --namespace <YOUR-NAMESPACE>
-```
+### 高级功能
+- **ACL 控制**: 支持访问控制列表
+- **观察者模式**: 支持观察者节点减少写入压力
+- **动态重配置**: 支持集群动态重配置
+- **快照管理**: 支持数据快照和恢复
+- **连接管理**: 支持连接池和连接监控
+- **性能调优**: 支持多种性能调优参数
 
-## 参数说明
+## 支持版本
 
-| 参数                    | 描述                                                         | 参数值         |
-| ----------------------- | ------------------------------------------------------------ | -------------- |
-| replicas                | 节点数量                                                     | 3              |
-| image                   | 镜像信息                                                     | 见 values.yaml |
-| storageType             | 存储类型，EPHEMERAL(非持久化存储) 和 persistence(持久化存储) | persistence    |
-| persistence             | 持久化存储配置                                               | 见 values.yaml |
-| pod.resources           | pod 所需要的资源                                             | 见 values.yaml |
-| kubernetesClusterDomain | 集群的域，如一般不用配置                                     | cluster.local  |
-| config.initLimit        | LF 初始通信时限,初始连接 时能容忍的最多心跳数                | 10             |
-| config.syncLimit        | LF 同步通信时限,请求和应答 之间能容忍的最多心跳数            | 2              |
-| config.tickTime         | CS 通信心跳数,维持心跳的时间间隔                             | 2000           |
+### 中间件版本
+- **ZooKeeper 3.7.1**: 最新稳定版本
 
-## 集群运维说明
+### 基线版本
+- **包版本**: 1.2.0-1.1.0
+- **Operator 版本**: v1beta1
 
-集群 CR 的配置说明
+### 相关组件版本
+- **ZooKeeper Operator**: v1.2.0
+- **ZooKeeper Image**: 3.7.1-2
 
-```
-apiVersion: zookeeper.pravega.io/v1beta1
-kind: ZookeeperCluster
-metadata:
-  labels:
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: zookeeper
-  name: zk-zookeeper # 集群名称
-spec:
-  config:
-    initLimit: 10 #LF初始通信时限
-    syncLimit: 2 #LF同步通信时限
-    tickTime: 2000 #CS通信心跳数
-  image:
-    pullPolicy: IfNotPresent #拉取策略
-    repository: harmonyware.harbor.cn/middleware/zookeeper #镜像地址
-    tag: hc-0.2.8 #镜像tag
-  kubernetesClusterDomain: cluster.local #集群域
-  labels:
-    app: zk-zookeeper
-    release: zk-zookeeper
-  persistence: #持久化存储配置
-    reclaimPolicy: Retain
-    spec:
-      accessModes:
-      - ReadWriteOnce #读写权限
-      resources:
-        requests:
-          storage: 1Gi #存储容量
-      storageClassName: middleware-lvm #存储类选择
-  pod:
-    affinity: #亲和性配置,和pod配置兼容
-      podAntiAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - podAffinityTerm:
-            labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - zk-zookeeper
-            topologyKey: kubernetes.io/hostname
-          weight: 20
-    labels: # 额外的标签
-      app: zk-zookeeper
-      release: zk-zookeeper
-    resources: {} #资源配置
-    serviceAccountName: zookeeper
-  ports:
-  - containerPort: 2181 #客户端连接端口
-    name: client
-  - containerPort: 2888
-    name: quorum
-  - containerPort: 3888
-    name: leader-election #选主端口
-  - containerPort: 7000
-    name: metrics
-  replicas: 3 #节点数量
-  storageType: persistence #存储方式
-```
+## 架构
 
-## 测试连接
+### 部署模式
 
-查看 service 信息
+#### 标准版 (operator-standard)
+- **副本数**: 1
+- **适用场景**: 开发测试环境、快速部署
+- **特点**: 资源占用少，部署简单
+
+#### 高可用版 (operator-highly-available)
+- **副本数**: 3
+- **适用场景**: 生产环境
+- **特点**: 高可用性，故障自动转移
+
+#### 单机版 (standalone)
+- **副本数**: 1
+- **适用场景**: 开发测试环境、单节点部署
+- **特点**: 简单部署，适合测试
+
+#### 集群版 (cluster)
+- **副本数**: 可配置（建议3个或以上）
+- **适用场景**: 生产环境、分布式协调
+- **特点**: 高可用、强一致性、分布式协调
+
+### 组件架构
 
 ```
-kubectl get svc
-NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                               AGE
-zk-zookeeper-client     ClusterIP   10.98.151.103   <none>        2181/TCP                              2m6s
-zk-zookeeper-headless   ClusterIP   None            <none>        2181/TCP,2888/TCP,3888/TCP,7000/TCP   2m6s
+┌─────────────────────────────────────────────────────────────┐
+│                    ZooKeeper 集群架构                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────┤
+│  │              ZooKeeper 集群                              │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │  │   Leader    │  │   Follower  │  │   Follower  │     │
+│  │  │             │  │             │  │             │     │
+│  │  │  ┌───────┐  │  │  ┌───────┐  │  │  ┌───────┐  │     │
+│  │  │  │ZNode  │  │  │  │ZNode  │  │  │  │ZNode  │  │     │
+│  │  │  │Tree   │  │  │  │Tree   │  │  │  │Tree   │  │     │
+│  │  │  └───────┘  │  │  └───────┘  │  │  └───────┘  │     │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
+│  └─────────────────────────────────────────────────────────┤
+│                          │                                 │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │              客户端连接层                              │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │  │   Client    │  │   Client    │  │   Client    │     │
+│  │  │     1       │  │     2       │  │     3       │     │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
+│  └─────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │              ZooKeeper Operator                         │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │  │   Manager   │  │  Controller │  │   Webhook   │     │
+│  │  │             │  │             │  │             │     │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
+│  └─────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │              Kubernetes 资源                           │
+│  │  • StatefulSet (ZooKeeper 节点)                        │
+│  │  • Service (服务发现)                                  │
+│  │  • PersistentVolumeClaim (数据持久化)                  │
+│  │  • ConfigMap (配置管理)                                │
+│  │  • Secret (认证信息)                                   │
+│  │  • Job (初始化任务)                                    │
+│  └─────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────┘
 ```
 
-在集群任意节点连接
+### 资源需求
 
+#### Operator 资源
+- **CPU 限制**: 200m
+- **内存限制**: 512Mi
+- **CPU 请求**: 100m
+- **内存请求**: 256Mi
+
+#### ZooKeeper 节点资源（默认）
+- **CPU 限制**: 1 Core
+- **内存限制**: 4Gi
+- **CPU 请求**: 1 Core
+- **内存请求**: 2Gi
+
+#### 存储需求
+- **数据卷**: 可配置大小
+- **访问模式**: ReadWriteOnce
+
+## 使用建议
+
+### 环境选择
+
+#### 开发测试环境
+- 使用 **单机版** 基线
+- 单节点部署即可
+- 减少资源配置
+- 适合功能验证和开发测试
+
+#### 生产环境
+- 使用 **集群版** 基线
+- 至少 3 节点部署（奇数个节点）
+- 配置 Pod 反亲和性确保节点分散
+- 启用监控告警
+
+### 配置建议
+
+#### 资源规划
+```yaml
+# 生产环境推荐配置
+resources:
+  zookeeper:
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+    replicas: 3  # 建议奇数个节点
+    volume:
+      size: 50   # GB
+      storageClass: "fast-ssd"
 ```
-./bin/zkCli.sh  -server 10.98.151.103:2181
-```
 
-集群内部访问
+#### 存储配置
+- 使用 SSD 存储提升性能
+- 配置适当的存储类
+- 考虑数据增长预留空间
+- 建议每个节点至少 50GB 存储
 
-```
-kubectl exec -it zk-zookeeper-0 bash
+#### 网络配置
+- 配置服务发现
+- 设置适当的网络策略
+- 考虑跨可用区部署
+- 配置负载均衡
 
-./bin/zkCli.sh  -server zk-zookeeper-client:2181
+### 监控告警
 
-```
+#### 关键指标
+- **节点状态**: `up`
+- **连接数**: `zk_num_alive_connections`
+- **请求延迟**: `zk_avg_latency`
+- **待处理请求**: `zk_outstanding_requests`
+- **待同步请求**: `zk_pending_syncs`
+- **文件描述符**: `zk_open_file_descriptor_count`
+
+#### 告警规则
+- ZooKeeper 节点宕机告警 (Critical)
+- ZooKeeper 积压请求过多告警 (Critical)
+- ZooKeeper 待同步请求过多告警 (Critical)
+- ZooKeeper 平均延迟过高告警 (Critical)
+- ZooKeeper 文件描述符使用率过高告警 (Critical)
+- ZooKeeper 存储使用率过高告警 (Critical)
+
+### 性能优化
+
+#### 内存优化
+- 合理设置 JVM 堆内存大小
+- 配置适当的垃圾回收器
+- 监控内存使用情况
+- 避免内存泄漏
+
+#### 网络优化
+- 使用连接池
+- 合理设置超时时间
+- 监控网络延迟
+- 配置适当的网络策略
+
+#### 存储优化
+- 使用高性能存储
+- 合理设置快照保留策略
+- 定期清理过期数据
+- 监控存储使用情况
+
+### 安全配置
+
+#### 访问控制
+- 配置 ACL 权限
+- 设置强密码
+- 限制网络访问
+- 定期更换密码
+
+#### 网络安全
+- 配置网络隔离
+- 限制访问来源
+- 使用 TLS 加密
+- 监控异常访问
+
+### 运维最佳实践
+
+#### 集群管理
+- 定期检查集群状态
+- 监控节点健康
+- 配置自动故障转移
+- 合理分配节点角色
+
+#### 数据管理
+- 定期备份数据
+- 监控存储使用情况
+- 清理过期快照
+- 制定数据恢复策略
+
+#### 故障处理
+- 建立监控体系
+- 制定故障处理流程
+- 配置自动恢复
+- 定期演练恢复流程
+
+### 扩展和升级
+
+#### 水平扩展
+- 动态添加节点
+- 重新分配数据
+- 监控扩展效果
+- 调整资源配置
+
+#### 版本升级
+- 制定升级计划
+- 测试环境验证
+- 滚动升级
+- 准备回滚方案
+
+### 集成建议
+
+#### 应用集成
+- 使用连接池
+- 实现重试机制
+- 处理连接失败
+- 监控连接状态
+
+#### 服务发现
+- 合理设计 ZNode 结构
+- 使用临时节点
+- 实现服务注册
+- 监控服务状态
+
+### 使用场景
+
+#### 典型应用
+- **服务发现**: 微服务架构中的服务注册与发现
+- **配置管理**: 分布式系统的配置中心
+- **分布式锁**: 分布式环境下的锁机制
+- **领导者选举**: 分布式系统中的主节点选举
+- **集群管理**: 集群节点的状态管理
+- **数据同步**: 分布式环境下的数据同步
+
+### 注意事项
+
+1. **集群规模**: 生产环境建议至少 3 个节点（奇数个）
+2. **内存规划**: 根据连接数和数据量合理规划内存
+3. **存储配置**: 重要数据必须配置持久化
+4. **监控覆盖**: 确保关键指标都有监控
+5. **备份策略**: 制定数据备份策略
+6. **版本兼容**: 注意客户端与服务端版本兼容
+7. **资源规划**: 根据连接数合理规划资源
+8. **安全配置**: 生产环境必须配置 ACL
+9. **日志管理**: 配置日志轮转避免磁盘满
+10. **文档维护**: 及时更新配置文档
+
+通过遵循以上建议，可以确保 ZooKeeper 在生产环境中的稳定运行和最佳性能，为分布式应用提供可靠的协调服务。
