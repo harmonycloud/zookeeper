@@ -8,4 +8,4 @@ app:
 owner: harmonycloud # 供应商
 type: mse # 类型
 chartType: ZooKeeper
-description: CloudDB ZooKeeper 微服务引擎 # 描述
+description: ZooKeeper 微服务引擎 # 描述
