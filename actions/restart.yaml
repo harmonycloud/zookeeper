@@ -1,0 +1,21 @@
+apiVersion: middleware.cn/v1
+kind: MiddlewareActionBaseline
+metadata:
+  name: zookeeper-restart
+spec:
+  baselineType: "NormalAction"
+  actionType: "restart"
+  necessary:
+  steps:
+    - name: restart
+      cmd:
+        command:
+          - "kubectl"
+          - "patch"
+          - "ZookeeperCluster"
+          - "{{ .Globe.MiddlewareName }}"
+          - "-n"
+          - "{{ .Globe.Namespace }}"
+          - "--type=merge"
+          - "-p"
+          - '''{"metadata":{"annotations":{"middleware.maintenance.lock":"graceful-restart","middleware.maintenance.step":"0"}}}'''
