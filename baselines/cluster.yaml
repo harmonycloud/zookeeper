@@ -14,7 +14,7 @@ spec:
     version: '{"type":"version","label":"版本","required":true,"default":"3.7.1"}'
     resource:
       zookeeper:
-        replicas: '{"type":"int","label":"实例数","required":true,"description":"节点数量，建议至少2个以保证高可用","default":3,"pattern":"^[1-9]\\d*$","placeholder":"请输入实例数"}'
+        replicas: '{"type":"int","label":"实例数","required":true,"description":"节点数量，建议至少3个以保证高可用","default":3,"pattern":"^[3-9]$","placeholder":"请输入实例数"}'
         volume:
           size: '{"type":"int","label":"存储大小","required":true,"description":"请输入存储大小","pattern":"^[1-9]\\d*$","placeholder":"请输入存储大小"}'
           storageClass: '{"type":"storageClass","label":"存储类","required":true,"description":"请选择存储","placeholder":"请选择存储"}'
