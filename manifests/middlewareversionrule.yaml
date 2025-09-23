@@ -1,0 +1,7 @@
+mainVersionGroups:
+  "3.x":
+    - "3.7.1"
+
+crossUpgradeRules:
+  "3.x":
+    - "3.x"
