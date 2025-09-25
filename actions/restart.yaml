@@ -3,7 +3,7 @@ kind: MiddlewareActionBaseline
 metadata:
   name: zookeeper-restart
 spec:
-  baselineType: "NormalAction"
+  baselineType: "Action"
   actionType: "restart"
   necessary:
   steps:
