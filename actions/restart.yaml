@@ -5,7 +5,7 @@ metadata:
   annotations:
     alias: "服务重启"
 spec:
-  baselineType: "Action"
+  baselineType: "OpsAction"
   actionType: "restart"
   necessary:
   steps:
