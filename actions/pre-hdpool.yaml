@@ -18,7 +18,7 @@ spec:
         parameters: {
           spec: {
             parameters: {
-              {{- if .Necessary.annotation }}
+              {{- if .Necessary.annotations }}
                 pod: {
                   {{- with .Necessary.annotations }}
                   annotations: {{ toCue . }}
