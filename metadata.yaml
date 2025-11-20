@@ -5,7 +5,7 @@ app:
     - "3.7.1"
   # deprecatedVersion: # 过期版本
   #   - v1
-owner: harmonycloud # 供应商
+owner: HarmonyCloud # 供应商
 type: mse # 类型
 chartType: ZooKeeper
 description: ZooKeeper 微服务引擎 # 描述
