@@ -1,0 +1,90 @@
+baselineName:
+  - name: "Cluster"
+    name-zh: "集群版"
+
+
+  - name: "Standard"
+    name-zh: "标准版"
+  - name: "HighAvailability"
+    name-zh: "高可用版"
+description:
+  - name: "ZooKeeper Microservices Engine"
+    name-zh: "ZooKeeper 微服务引擎"
+
+  - name: "Cluster Mode Baseline, incorporating core functionality and essential dependencies, is tailored for rapid deployment and fundamental application scenarios. It delivers stable and reliable performance, and is designed for ease of extension and maintenance."
+    name-zh: "集群版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+
+  - name: "High Availability/HA Baseline,incorporating core functionality and essential dependencies, is tailored for rapid deployment and fundamental application scenarios. It delivers stable and reliable performance, and is designed for ease of extension and maintenance."
+    name-zh: "高可用版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+  - name: "Standard Baseline,incorporating core functionality and essential dependencies, is tailored for rapid deployment and fundamental application scenarios. It delivers stable and reliable performance, and is designed for ease of extension and maintenance."
+    name-zh: "标准版基线,包含核心功能和必要依赖,适用于快速部署和基本应用场景,稳定可靠,易于扩展和维护."
+
+
+
+  - name: "Please enter a custom quota, the unit is `Core`"
+    name-zh: "请输入自定义配额,单位为Core"
+  - name: "Please enter a custom quota, the unit is `Gi`"
+    name-zh: "请输入自定义配额,单位为Gi"
+
+  - name: "Nodes,It is recommended to have at least 3 to ensure high availability."
+    name-zh: "节点数量，建议至少3个以保证高可用"
+
+  - name: "Please enter the storage size"
+    name-zh: "请输入存储大小"
+  - name: "Please select storage"
+    name-zh: "请选择存储"
+  - name: "Please enter a password consisting of English letters, numbers, or special characters /, ~, %, _, ."
+    name-zh: "请输入由英文字母、数字或特殊字符“/、~、%、_、.”组成的密码信息"
+
+  - name: "The number of ticks that can pass between "
+    name-zh: "允许在节点之间传递的tick数量"
+  - name: "Whether to skip acl rule verification"
+    name-zh: "是否跳过ACL规则验证"
+  - name: "The number of ticks that the initial "
+    name-zh: "初始化阶段允许的tick数量"
+  - name: "The number of milliseconds of each tick"
+    name-zh: "每个tick的毫秒数"
+  - name: "When set to true the ZooKeeper server will listen for connections from its peers on all available IP addresses, and not only the address configured in the server list of the configuration file."
+    name-zh: "当设置为true时，ZooKeeper服务器将监听所有可用IP地址上来自对等节点的连接，而不仅是配置文件中服务器列表里配置的地址。"
+
+placeholder:
+  - name: "Please enter a custom quota, the unit is `Gi`"
+    name-zh: "请输入自定义配额,单位为Gi"
+  - name: "Please enter a custom quota, the unit is `Core`"
+    name-zh: "请输入自定义配额,单位为Core"
+  - name: "Please enter the storage size"
+    name-zh: "请输入存储大小"
+  - name: "Please select storage"
+    name-zh: "请选择存储"
+  - name: "Please enter the number of instances"
+    name-zh: "请输入实例数"
+  - name: "Enter your admin password"
+    name-zh: "输入管理员账户密码"
+
+label:
+  - name: "AdminPassword"
+    name-zh: "管理员账号密码"
+  - name: "Memory"
+    name-zh: "内存"
+  - name: "Replicas"
+    name-zh: "实例数"
+  - name: "Version"
+    name-zh: "版本"
+
+  - name: "StorageSize"
+    name-zh: "存储大小"
+
+  - name: "StorageClass"
+    name-zh: "存储类"
+  - name: "Turn off automatic switching?"
+    name-zh: "是否关闭自动切换"
+
+
+actionAliasName:
+  - name: "MasterSlaveSwitchover"
+    name-zh: "主从切换"
+  - name: "Automatic switch"
+    name-zh: "自动切换"
+  - name: "Restart"
+    name-zh: "服务重启"
+
