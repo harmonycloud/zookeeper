@@ -3765,6 +3765,7 @@ spec:
                       type: object
                     type: array
                 type: object
+                x-kubernetes-preserve-unknown-fields: true
               status:
                 description: ZookeeperClusterStatus defines the observed state of ZookeeperCluster
                 properties:

@@ -11,7 +11,7 @@ spec:
     gvkName: v1beta1
   necessary:
     repository: ""
-    version: '{"type":"version","label":"Version","required":true,"default":"3.7.1"}'
+    version: '{"type":"version","label":"Version","required":true,"default":"3.7.2"}'
     resource:
       zookeeper:
         replicas: '{"type":"int","label":"Replicas","required":true,"description":"Nodes,It is recommended to have at least 3 to ensure high availability.","default":3,"pattern":"^[3-9]$","placeholder":"Please enter the number of instances"}'
@@ -54,11 +54,17 @@ spec:
         tolerations: []
       exposed: true
   parameters:
+      sasl:
+        user: super
+        password: Hc@Cloud01
+      acl:
+        superUser: super
+        superPassword: Hc@Cloud01
     replicas: "{{ .Necessary.resource.zookeeper.replicas }}"
     version: "{{ .Necessary.version }}"
     image:
       repository: "{{ .Necessary.repository }}/zookeeper"
-      tag: "3.7.1-2"
+      tag: "3.7.2"
       pullPolicy: IfNotPresent
     kubernetesClusterDomain: "cluster.local"
     pod:
