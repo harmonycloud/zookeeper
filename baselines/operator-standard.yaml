@@ -86,7 +86,7 @@ spec:
           serviceAccountName: "{{ .Globe.Name }}-zookeeper-operator"
           containers:
             - name: "{{ .Globe.Name }}"
-              image: '{{ if ne .Globe.repository "" }}{{ .Globe.repository }}/{{ end }}{{ .Globe.project }}/zookeeper-operator:v1.3.0'
+              image: '{{ if ne .Globe.repository "" }}{{ .Globe.repository }}/{{ end }}{{ .Globe.project }}/zookeeper-operator:v1.2.0'
               imagePullPolicy: IfNotPresent
               ports:
                 - containerPort: 6000
