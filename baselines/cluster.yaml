@@ -64,7 +64,7 @@ spec:
     version: "{{ .Necessary.version }}"
     image:
       repository: "{{ .Necessary.repository }}/zookeeper"
-      tag: '{{ if eq .Necessary.version "3.7.1" }}3.7.1-2{{ else if eq .Necessary.version "3.7.2" }}3.7.2{{ end }}'
+      tag: '{{ if eq .Necessary.version "3.7.1" }}3.7.1-2{{ else if eq .Necessary.version "3.7.2" }}3.7.2-zk{{ end }}'
       pullPolicy: IfNotPresent
     kubernetesClusterDomain: "cluster.local"
     pod:
