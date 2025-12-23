@@ -54,12 +54,12 @@ spec:
         tolerations: []
       exposed: true
   parameters:
-      sasl:
-        user: super
-        password: Hc@Cloud01
-      acl:
-        superUser: super
-        superPassword: Hc@Cloud01
+    sasl:
+      user: super
+      password: Hc@Cloud01
+    acl:
+      superUser: super
+      superPassword: Hc@Cloud01
     replicas: "{{ .Necessary.resource.zookeeper.replicas }}"
     version: "{{ .Necessary.version }}"
     image:
