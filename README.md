@@ -1,6 +1,6 @@
-[English](README.md) | [中文](README_zh.md)
-
 # ZooKeeper Coordination Service
+
+**English** | [中文](README_zh.md)
 
 Enterprise-grade Apache ZooKeeper distributed coordination service for Kubernetes with high availability, strong consistency, and integrated monitoring.
 
