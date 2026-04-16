@@ -1,312 +1,199 @@
-# ZooKeeper
+# ZooKeeper Coordination Service
 
-## 描述
+Enterprise-grade Apache ZooKeeper distributed coordination service for Kubernetes with high availability, strong consistency, and integrated monitoring.
 
-ZooKeeper 是一个开源的分布式协调服务，为分布式应用提供一致性服务。本基线基于 ZooKeeper 构建，提供了企业级的分布式协调解决方案，包括配置管理、命名服务、分布式锁、集群管理等核心功能。ZooKeeper 以其高可用性、强一致性和简单易用的 API 而闻名，广泛应用于分布式系统中的服务发现、配置管理、分布式锁、领导者选举等场景。
+## Overview
 
-## 功能
+Apache ZooKeeper is an open-source distributed coordination service that provides consistency guarantees for distributed applications. This package delivers a production-ready ZooKeeper ensemble on Kubernetes, featuring configuration management, naming services, distributed locking, leader election, and cluster management. ZooKeeper is widely adopted in distributed systems for service discovery, configuration management, and consensus.
 
-### 核心功能
-- **配置管理**: 提供集中化的配置管理服务
-- **命名服务**: 为分布式系统中的服务提供命名和发现
-- **分布式锁**: 提供分布式环境下的锁机制
-- **集群管理**: 支持集群节点的管理和监控
-- **数据同步**: 提供分布式环境下的数据同步机制
-- **领导者选举**: 支持分布式系统中的领导者选举
+## Features
 
-### 企业级特性
-- **高可用性**: 支持多节点集群部署，具备故障自动转移能力
-- **强一致性**: 基于 ZAB 协议保证数据一致性
-- **监控告警**: 集成 Prometheus 监控和告警
-- **日志管理**: 支持结构化日志输出和日志轮转
-- **持久化存储**: 支持数据持久化和快照管理
-- **自动清理**: 支持自动清理过期快照和日志
+### Core Capabilities
+- **Configuration management**: Centralized configuration management service
+- **Naming service**: Service naming and discovery for distributed systems
+- **Distributed locking**: Lock mechanisms for distributed environments
+- **Cluster management**: Cluster node management and monitoring
+- **Data synchronization**: Data synchronization across distributed environments
+- **Leader election**: Leader election support for distributed systems
 
-### 运维功能
-- **资源管理**: 支持 CPU 和内存资源限制
-- **节点亲和性**: 支持 Pod 反亲和性和节点亲和性配置
-- **容忍度配置**: 支持污点容忍度设置
-- **健康检查**: 内置健康检查和就绪探针
-- **指标导出**: 提供 Prometheus 格式的指标
-- **优雅停机**: 支持优雅停机机制
+### Advanced Features
+- **High availability**: Multi-node ensemble deployment with automatic failover
+- **Strong consistency**: ZAB protocol-based data consistency guarantees
+- **Monitoring and alerting**: Integrated Prometheus metrics and alert rules
+- **Log management**: Structured logging output with log rotation
+- **Durable storage**: Data persistence with snapshot management
+- **Auto-purge**: Automatic cleanup of expired snapshots and logs
+- **ACL control**: Access control list support
+- **Observer mode**: Observer nodes to reduce write pressure
+- **Dynamic reconfiguration**: Cluster dynamic reconfiguration support
+- **Snapshot management**: Data snapshot and recovery
 
-### 高级功能
-- **ACL 控制**: 支持访问控制列表
-- **观察者模式**: 支持观察者节点减少写入压力
-- **动态重配置**: 支持集群动态重配置
-- **快照管理**: 支持数据快照和恢复
-- **连接管理**: 支持连接池和连接监控
-- **性能调优**: 支持多种性能调优参数
+### Operations Features
+- **Resource management**: CPU and memory resource limits
+- **Node affinity**: Pod anti-affinity and node affinity configuration
+- **Tolerations**: Taint toleration settings
+- **Health checks**: Built-in liveness and readiness probes
+- **Metrics export**: Prometheus-format metrics
+- **Graceful shutdown**: Graceful shutdown mechanism
 
-## 支持版本
+## Supported Versions
 
-### 中间件版本
-- **ZooKeeper 3.7.2**: 最新稳定版本
+### ZooKeeper Releases
+- **3.7.2** (latest stable)
 
-### 基线版本
-- **包版本**: 1.2.0-1.1.0
-- **Operator 版本**: v1beta1
+### Component Releases
+- **Package version**: 1.3.1-1.0.0
 
-### 相关组件版本
-- **ZooKeeper Operator**: v1.2.0
-- **ZooKeeper Image**: 3.7.2
+## Architecture
 
-## 架构
+### Deployment Modes
 
-### 部署模式
+#### 1. Operator Standard (operator-standard)
+- **Use cases**: Development, testing, and quick deployment
+- **Traits**: Single replica, minimal resource usage
+- **Topology**: 1 ZooKeeper instance
 
-#### 标准版 (operator-standard)
-- **副本数**: 1
-- **适用场景**: 开发测试环境、快速部署
-- **特点**: 资源占用少，部署简单
+#### 2. Operator Highly Available (operator-highly-available)
+- **Use cases**: Production environments
+- **Traits**: Multi-replica with automatic failover
+- **Topology**: 3 ZooKeeper instances
 
-#### 高可用版 (operator-highly-available)
-- **副本数**: 3
-- **适用场景**: 生产环境
-- **特点**: 高可用性，故障自动转移
+#### 3. Cluster (cluster)
+- **Use cases**: Production environments requiring distributed coordination
+- **Traits**: High availability, strong consistency, configurable replica count
+- **Topology**: 3+ instances (odd number recommended)
 
-#### 单机版 (standalone)
-- **副本数**: 1
-- **适用场景**: 开发测试环境、单节点部署
-- **特点**: 简单部署，适合测试
-
-#### 集群版 (cluster)
-- **副本数**: 可配置（建议3个或以上）
-- **适用场景**: 生产环境、分布式协调
-- **特点**: 高可用、强一致性、分布式协调
-
-### 组件架构
+### Technical Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    ZooKeeper 集群架构                        │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────┤
-│  │              ZooKeeper 集群                              │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │  │   Leader    │  │   Follower  │  │   Follower  │     │
-│  │  │             │  │             │  │             │     │
-│  │  │  ┌───────┐  │  │  ┌───────┐  │  │  ┌───────┐  │     │
-│  │  │  │ZNode  │  │  │  │ZNode  │  │  │  │ZNode  │  │     │
-│  │  │  │Tree   │  │  │  │Tree   │  │  │  │Tree   │  │     │
-│  │  │  └───────┘  │  │  └───────┘  │  │  └───────┘  │     │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
-│  └─────────────────────────────────────────────────────────┤
-│                          │                                 │
-│  ┌─────────────────────────────────────────────────────────┤
-│  │              客户端连接层                              │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │  │   Client    │  │   Client    │  │   Client    │     │
-│  │  │     1       │  │     2       │  │     3       │     │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
-│  └─────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────────────────────────────────────────────┤
-│  │              ZooKeeper Operator                         │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │  │   Manager   │  │  Controller │  │   Webhook   │     │
-│  │  │             │  │             │  │             │     │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │
-│  └─────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────────────────────────────────────────────┤
-│  │              Kubernetes 资源                           │
-│  │  • StatefulSet (ZooKeeper 节点)                        │
-│  │  • Service (服务发现)                                  │
-│  │  • PersistentVolumeClaim (数据持久化)                  │
-│  │  • ConfigMap (配置管理)                                │
-│  │  • Secret (认证信息)                                   │
-│  │  • Job (初始化任务)                                    │
-│  └─────────────────────────────────────────────────────────┘
-└─────────────────────────────────────────────────────────────┘
++---------------------------------------------------------+
+|                   ZooKeeper Ensemble                    |
++---------------------------------------------------------+
+|  +-----------+  +-----------+  +-----------+            |
+|  |  Leader   |  | Follower  |  | Follower  |            |
+|  |           |  |           |  |           |            |
+|  | +-------+ |  | +-------+ |  | +-------+ |            |
+|  | | ZNode | |  | | ZNode | |  | | ZNode | |            |
+|  | | Tree  | |  | | Tree  | |  | | Tree  | |            |
+|  | +-------+ |  | +-------+ |  | +-------+ |            |
+|  +-----------+  +-----------+  +-----------+            |
++---------------------------------------------------------+
+|                  Client Connection Layer                |
+|  +-----------+  +-----------+  +-----------+            |
+|  |  Client   |  |  Client   |  |  Client   |            |
+|  |    1      |  |    2      |  |    3      |            |
+|  +-----------+  +-----------+  +-----------+            |
++---------------------------------------------------------+
+|                  ZooKeeper Operator                     |
+|  +-----------+  +-----------+  +-----------+            |
+|  |  Manager  |  |Controller |  |  Webhook  |            |
+|  +-----------+  +-----------+  +-----------+            |
++---------------------------------------------------------+
+|               Kubernetes Resources                      |
+|  StatefulSet | Service | PVC | ConfigMap | Secret | Job |
++---------------------------------------------------------+
 ```
 
-### 资源需求
+### Component Overview
 
-#### Operator 资源
-- **CPU 限制**: 200m
-- **内存限制**: 512Mi
-- **CPU 请求**: 100m
-- **内存请求**: 256Mi
+- **ZooKeeper**: Core distributed coordination engine
+- **ZooKeeper Operator**: Kubernetes operator for lifecycle management
+- **Exporter**: Prometheus metrics collector
 
-#### ZooKeeper 节点资源（默认）
-- **CPU 限制**: 1 Core
-- **内存限制**: 4Gi
-- **CPU 请求**: 1 Core
-- **内存请求**: 2Gi
+## Prerequisites
 
-#### 存储需求
-- **数据卷**: 可配置大小
-- **访问模式**: ReadWriteOnce
+- Kubernetes 1.26+
+- [OpenSaola Operator](https://github.com/harmonycloud/opensaola) deployed
+- [saola-cli](https://github.com/harmonycloud/saola-cli) installed
 
-## 使用建议
+## Quick Start
 
-### 环境选择
+```bash
+# Publish the package
+saola publish zookeeper/
 
-#### 开发测试环境
-- 使用 **单机版** 基线
-- 单节点部署即可
-- 减少资源配置
-- 适合功能验证和开发测试
+# Install the operator
+saola operator create zk-operator --type ZooKeeper --version 3.7.2
 
-#### 生产环境
-- 使用 **集群版** 基线
-- 至少 3 节点部署（奇数个节点）
-- 配置 Pod 反亲和性确保节点分散
-- 启用监控告警
+# Create an instance
+saola middleware create my-zookeeper --type ZooKeeper --version 3.7.2
 
-### 配置建议
-
-#### 资源规划
-```yaml
-# 生产环境推荐配置
-resources:
-  zookeeper:
-    limits:
-      cpu: "2"
-      memory: "4Gi"
-    requests:
-      cpu: "1"
-      memory: "2Gi"
-    replicas: 3  # 建议奇数个节点
-    volume:
-      size: 50   # GB
-      storageClass: "fast-ssd"
+# Check status
+saola middleware get my-zookeeper
 ```
 
-#### 存储配置
-- 使用 SSD 存储提升性能
-- 配置适当的存储类
-- 考虑数据增长预留空间
-- 建议每个节点至少 50GB 存储
+## Available Actions
 
-#### 网络配置
-- 配置服务发现
-- 设置适当的网络策略
-- 考虑跨可用区部署
-- 配置负载均衡
+| Action | Description |
+|--------|-------------|
+| restart | Restart the middleware instance |
 
-### 监控告警
+## Configuration
 
-#### 关键指标
-- **节点状态**: `up`
-- **连接数**: `zk_num_alive_connections`
-- **请求延迟**: `zk_avg_latency`
-- **待处理请求**: `zk_outstanding_requests`
-- **待同步请求**: `zk_pending_syncs`
-- **文件描述符**: `zk_open_file_descriptor_count`
+Key parameters can be customized via the baseline configuration. See `manifests/*parameters.yaml` for the full parameter reference:
 
-#### 告警规则
-- ZooKeeper 节点宕机告警 (Critical)
-- ZooKeeper 积压请求过多告警 (Critical)
-- ZooKeeper 待同步请求过多告警 (Critical)
-- ZooKeeper 平均延迟过高告警 (Critical)
-- ZooKeeper 文件描述符使用率过高告警 (Critical)
-- ZooKeeper 存储使用率过高告警 (Critical)
+- `manifests/clusterparameters.yaml` -- Cluster mode parameters
+- `manifests/sentinelparameters.yaml` -- Sentinel mode parameters
 
-### 性能优化
+## Usage Guidance
 
-#### 内存优化
-- 合理设置 JVM 堆内存大小
-- 配置适当的垃圾回收器
-- 监控内存使用情况
-- 避免内存泄漏
+### Environment Selection
 
-#### 网络优化
-- 使用连接池
-- 合理设置超时时间
-- 监控网络延迟
-- 配置适当的网络策略
+#### Development and Test
+- **Recommended topology**: Operator Standard or Standalone
+- **Resources**: CPU 1 core, memory 2 Gi, storage 20 Gi
+- **Suggested version**: ZooKeeper 3.7.2
+- **Instances**: 1
 
-#### 存储优化
-- 使用高性能存储
-- 合理设置快照保留策略
-- 定期清理过期数据
-- 监控存储使用情况
+#### Production
+- **Recommended topology**: Cluster or Operator Highly Available
+- **Resources**: CPU 2 cores, memory 4 Gi, storage 50 Gi
+- **Suggested version**: ZooKeeper 3.7.2
+- **Instances**: 3+ (odd number for quorum)
 
-### 安全配置
+### Best Practices
 
-#### 访问控制
-- 配置 ACL 权限
-- 设置强密码
-- 限制网络访问
-- 定期更换密码
+#### Security
+- Configure ACL permissions for ZNode access control
+- Enforce strong passwords with mixed character classes
+- Restrict network access to the ensemble
+- Rotate credentials periodically
+- Enable SASL authentication for production environments
 
-#### 网络安全
-- 配置网络隔离
-- 限制访问来源
-- 使用 TLS 加密
-- 监控异常访问
+#### Performance Tuning
+- Set JVM heap size appropriately for the workload
+- Configure a suitable garbage collector
+- Monitor memory usage and avoid memory leaks
+- Use connection pools and tune session timeouts
+- Monitor network latency between nodes
 
-### 运维最佳实践
+#### Monitoring and Alerting
+- Track node status, connection count, and request latency
+- Monitor outstanding requests and pending syncs
+- Define alert thresholds for critical metrics
+- Watch file descriptor usage and storage utilization
+- Review cluster health regularly
 
-#### 集群管理
-- 定期检查集群状态
-- 监控节点健康
-- 配置自动故障转移
-- 合理分配节点角色
+#### Operations
+- Deploy an odd number of nodes (3 or 5) for proper quorum
+- Configure Pod anti-affinity to spread nodes across hosts
+- Set up automatic snapshot purging
+- Establish data backup and recovery procedures
+- Plan capacity based on connection count and data volume
 
-#### 数据管理
-- 定期备份数据
-- 监控存储使用情况
-- 清理过期快照
-- 制定数据恢复策略
+## Related Projects
 
-#### 故障处理
-- 建立监控体系
-- 制定故障处理流程
-- 配置自动恢复
-- 定期演练恢复流程
+| Project | Description |
+|---------|-------------|
+| [OpenSaola Operator](https://github.com/harmonycloud/opensaola) | Core Kubernetes operator for middleware lifecycle management |
+| [saola-cli](https://github.com/harmonycloud/saola-cli) | Command-line tool for middleware management |
+| [PostgreSQL](https://github.com/harmonycloud/postgresql) | PostgreSQL database package |
+| [MySQL](https://github.com/harmonycloud/mysql) | MySQL database package |
+| [Kafka](https://github.com/harmonycloud/kafka) | Apache Kafka streaming platform package |
+| [Redis](https://github.com/harmonycloud/redis) | Redis in-memory data store package |
+| [Elasticsearch](https://github.com/harmonycloud/elasticsearch) | Elasticsearch search engine package |
+| [RabbitMQ](https://github.com/harmonycloud/rabbitmq) | RabbitMQ message broker package |
 
-### 扩展和升级
+## License
 
-#### 水平扩展
-- 动态添加节点
-- 重新分配数据
-- 监控扩展效果
-- 调整资源配置
-
-#### 版本升级
-- 制定升级计划
-- 测试环境验证
-- 滚动升级
-- 准备回滚方案
-
-### 集成建议
-
-#### 应用集成
-- 使用连接池
-- 实现重试机制
-- 处理连接失败
-- 监控连接状态
-
-#### 服务发现
-- 合理设计 ZNode 结构
-- 使用临时节点
-- 实现服务注册
-- 监控服务状态
-
-### 使用场景
-
-#### 典型应用
-- **服务发现**: 微服务架构中的服务注册与发现
-- **配置管理**: 分布式系统的配置中心
-- **分布式锁**: 分布式环境下的锁机制
-- **领导者选举**: 分布式系统中的主节点选举
-- **集群管理**: 集群节点的状态管理
-- **数据同步**: 分布式环境下的数据同步
-
-### 注意事项
-
-1. **集群规模**: 生产环境建议至少 3 个节点（奇数个）
-2. **内存规划**: 根据连接数和数据量合理规划内存
-3. **存储配置**: 重要数据必须配置持久化
-4. **监控覆盖**: 确保关键指标都有监控
-5. **备份策略**: 制定数据备份策略
-6. **版本兼容**: 注意客户端与服务端版本兼容
-7. **资源规划**: 根据连接数合理规划资源
-8. **安全配置**: 生产环境必须配置 ACL
-9. **日志管理**: 配置日志轮转避免磁盘满
-10. **文档维护**: 及时更新配置文档
-
-通过遵循以上建议，可以确保 ZooKeeper 在生产环境中的稳定运行和最佳性能，为分布式应用提供可靠的协调服务。
+This project is licensed under the [Apache License 2.0](LICENSE).
